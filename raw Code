@@ -1,0 +1,83 @@
+# Mount Google Drive
+from google.colab import drive
+drive.mount('/content/drive')
+
+# Import required libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the CSV file
+df = pd.read_csv("/content/drive/MyDrive/Data Analysis/Python Project/food delivery costs.csv")
+
+# Explore data
+print("Data Shape:", df.shape)
+print("First 5 rows:\n", df.head())
+print("Data Info:\n", df.info())
+
+# Data Cleaning
+# Convert 'Order Date and Time' and 'Delivery Date and Time' to datetime format
+df["Order Date and Time"] = pd.to_datetime(df["Order Date and Time"])
+df["Delivery Date and Time"] = pd.to_datetime(df["Delivery Date and Time"])
+print("Data Info after date conversion:\n", df.info())
+
+# Clean 'Discounts and Offers' column
+def extract(value):
+    a = str(value).split(" ")
+    return a[0]
+
+df["Discounts and Offers"] = df["Discounts and Offers"].apply(extract)
+
+def removep(value):
+    if "%" in value:
+        a = value.replace("%", "")
+        return float(a)
+    else:
+        return float(value)
+
+df["Discounts and Offers"] = df["Discounts and Offers"].apply(removep)
+
+# Calculate discount values
+df.loc[(df["Discounts and Offers"] <= 15), "Discounts and Offers"] = (df["Discounts and Offers"] / 100) * df["Order Value"]
+df["Discounts and Offers"] = df["Discounts and Offers"].fillna(0)
+
+# Feature Engineering
+# Calculate 'Costs' column as the sum of 'Delivery Fee', 'Discounts and Offers', and 'Payment Processing Fee'
+df["Costs"] = df["Delivery Fee"] + df["Discounts and Offers"] + df["Payment Processing Fee"]
+
+# Calculate 'Profit' column as 'Commission Fee' minus 'Costs'
+df["Profit"] = df["Commission Fee"] - df["Costs"]
+
+# Display data with new columns
+print("First 5 rows after feature engineering:\n", df.head())
+
+# Analysis and Visualization
+# Total Profit
+total_profit = df["Profit"].sum()
+print("Total Profit:", total_profit)
+
+# Cost Distribution Analysis
+cost_dist = df[["Delivery Fee", "Payment Processing Fee", "Discounts and Offers"]].sum()
+
+# Pie chart of cost distribution
+plt.figure(figsize=(6, 6))
+plt.pie(cost_dist, labels=cost_dist.index, autopct="%1.2f%%", startangle=90)
+plt.title("Cost Distribution")
+plt.show()
+
+# Profit vs. Cost vs. Commission Fee
+abc = df[["Commission Fee", "Costs", "Profit"]].sum()
+
+# Bar chart for profitability breakdown
+plt.figure(figsize=(6, 6))
+plt.bar(abc.index, abc, color=['#4CAF50', '#2196F3', '#FF5722'])
+plt.xticks(rotation=45)
+plt.title("Profit vs Costs vs Commission Fee")
+plt.show()
+
+# Profit Distribution Histogram
+plt.figure(figsize=(8, 5))
+plt.hist(df["Profit"], bins=20, color="#FFA07A")
+plt.title("Profit Distribution")
+plt.xlabel("Profit")
+plt.ylabel("Frequency")
+plt.show()
