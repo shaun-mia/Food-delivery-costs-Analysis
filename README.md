@@ -1,6 +1,6 @@
 # Food Delivery Cost Analysis Using Python
-
-![Food Delivery Analysis](https://link-to-image.com/food_delivery_analysis.png)  <!-- Replace with an actual image link if available -->
+  <!-- Replace with an actual image link if available -->
+  
 
 ## Project Overview
 This project, **Food Delivery Cost Analysis Using Python**, explores the costs, discounts, and profitability within a food delivery dataset. Using Python for data cleaning, transformation, and visualization, the project provides insights into cost distribution, profit margins, and identifies areas for potential cost optimization.
